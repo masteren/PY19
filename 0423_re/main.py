@@ -129,12 +129,51 @@ print(re.search(r'[0-9]', '5'))
 print(re.search(r'[a-z]', 'c'))
 print(re.search(r'[a-zA-Z]', 'Y'))
 
+print(re.search(r'\d', '5')) # [0-9 ０-９]と同義
+print(re.search(r'\d', '４'))
+print(re.search(r'\d', 'a')) # miss
+
+print(re.search(r'\D', '＠')) # 数字以外
+print(re.search(r'\D', '5')) # miss
+
+print(re.search(r'\s', '@')) # 空白文字（スペース、タブ、改行など）
+print(re.search(r'\s', ' ')) # match
+print(re.search(r'\s', '\t')) # match
+print(re.search(r'\s', '\n')) # match
 
 
+print(re.search(r'\S', ' ')) # miss
+print(re.search(r'\S', '@')) # match
 
+print(re.search(r'\bis\b', 'this is')) # \bで単語区切り
+print(re.search(r'\bis\b', 'this')) # miss
 
+# 単語選択
+# (abc|def)   abcかdefのどちらか
+print(re.search(r'(abc|def)g', 'abcg')) # match
+print(re.search(r'(color|colour)', 'color'))
 
+# グループ
+# ()で括ってグループ化することにより、
+# .groupや、.groupsで取得可能
+print('group/groups')
+print(re.search(r'(\d{4})/(\d{1,2})/(\d{1,2})', '2026/5/7'))
+match = re.search(r'(\d{4})/(\d{1,2})/(\d{1,2})', '2026/5/7')
+print(match)
+print(match.group(0)) # マッチ全体
+print(match.group(1)) # 1番目のグループ
+print(match.group(2)) # 2番目のグループ
+print(match.group(3)) # 3番目のグループ
+print(match.groups()) # 全てのグループをタプルで取得
 
-
-
-
+# 打ち消しは [\]
+print(re.search(r'\^', 'a'))
+print(re.search(r'\^', 'a^')) # match
+print(re.search(r'\$', 'a$')) # match
+print(re.search(r'\.', 'a.')) # match
+print(re.search(r'\{', 'a{')) # match
+print(re.search(r'\(', 'a(')) # match
+print(re.search(r'\\', '\\')) # match
+print(re.search(r'[0\-9]', '-')) # 0,-,9のいずれか
+print(re.search(r'[^abc]bc', 'dbc')) # [^]は否定の文字集合
+print(re.search(r'[^abc]bc', 'bc')) # miss
