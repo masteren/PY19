@@ -177,3 +177,74 @@ print(re.search(r'\\', '\\')) # match
 print(re.search(r'[0\-9]', '-')) # 0,-,9のいずれか
 print(re.search(r'[^abc]bc', 'dbc')) # [^]は否定の文字集合
 print(re.search(r'[^abc]bc', 'bc')) # miss
+
+# 最短一致
+# +?...手前の文字が1回以上繰り返すが、できるだけ少ない回数でマッチする
+# *?...手前の文字が0回以上繰り返すが、できるだけ少ない回数でマッチする
+print('+?*?----------------')
+print(re.search(r'.+', 'abc'))
+print(re.search(r'.+?', 'abc'))
+print(re.search(r'.*', 'abc'))
+print(re.search(r'.*?', 'abc'))
+print(re.search(r'aaa.*ccc', 'aaabbbcccdddccc'))
+print(re.search(r'aaa.*?ccc', 'aaabbbcccdddccc'))
+
+# マッチオブジェクト
+print('match object----------------')
+match = re.search(r'ccc', 'abccc')
+print(match.span())
+print(match.start())
+print(match.end())
+# searchは複数箇所マッチしない
+match = re.search(r'ccc', 'abcccabccc')
+print(match.span())
+
+# 複数マッチ　findall
+print('findall----------------')
+match_str_list = re.findall(r'ccc', 'abcccabccc')
+print(match_str_list)
+
+# 複数マッチ　finditer イテレータで返す
+print('finditer----------------')
+match_iter = re.finditer(r'ccc', 'abcccabccc')
+for match in match_iter:
+    print(match.span())
+
+# かぶりは考慮されない
+match_iter = re.finditer(r'ccc', 'abcccccc')
+for match in match_iter:
+    print(match.span())
+
+# マッチした箇所で区切ってリスト化
+print('split----------------')
+split_list = re.split(r'ccc', 'abcccabccc')
+print(split_list)
+
+# マッチした箇所を置換
+print('sub----------------')
+print(re.sub(r'ccc', 'XXX', 'abcccabccc'))
+
+# 先読み／後読み
+# (?= ) … 先読み
+# (?! ) … 否定先読み
+# (?<= ) … 後読み
+# (?<! ) … 否定後読み
+# 先頭を表す^や、末尾を表す$と同じ扱い。
+# パターンマッチング(検査)はするが、
+# 結果のマッチオブジェクトには含まれない。
+
+# 先読み（右側をチェック）
+print(re.search(r'python(?=flask)', 'pythonflask'))
+print(re.search(r'python(?=flask)', 'pythonflas')) # miss
+
+# 否定先読み（右側をチェック）
+print(re.search(r'python(?!flask)', 'pythonflask')) # miss
+print(re.search(r'python(?!flask)', 'pythonflas')) # match
+
+# 後読み（左側をチェック）
+print(re.search(r'(?<=python)flask', 'pythonflask')) # match
+print(re.search(r'(?<=python)flask', 'pythoflask'))
+
+# 否定後読み（左側をチェック）
+print(re.search(r'(?<!python)flask', 'pythonflask')) # miss
+print(re.search(r'(?<!python)flask', 'pythoflask'))
