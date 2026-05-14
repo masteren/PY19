@@ -248,3 +248,52 @@ print(re.search(r'(?<=python)flask', 'pythoflask'))
 # 否定後読み（左側をチェック）
 print(re.search(r'(?<!python)flask', 'pythonflask')) # miss
 print(re.search(r'(?<!python)flask', 'pythoflask'))
+
+# 先読み/後読み + グループ
+print(re.search(r'新宿(?=駅|区)', '新宿駅 '))
+print(re.search(r'新宿(?=駅|区)', '新宿区 '))
+print(re.search(r'新宿(?=駅|区)', '新宿町 ')) # miss
+
+print(re.search(r'新宿(?=駅|御苑)', '新宿駅 '))
+print(re.search(r'新宿(?=駅|御苑)', '新宿御苑 '))
+
+print(re.search(r'(?<=(西|東))新宿', '西新宿 '))
+# print(re.search(r'(?<=(東|東部))新宿', '東新宿 ')) # bug
+
+# 先読み/後読み 活用例1
+print(re.sub(r'日本(?=語)', '国', '日本では日本語と英語を勉強する。'))
+
+# 先読み/後読み 活用例2 タグ取得
+print(re.findall(r'(?<=#)\S+', '#aaa #bbb #ccc'))
+
+# 先読みの手前(左)記載
+print(re.search(r'(?=pythonflask)python', 'pythonflask'))
+print(re.search(r'(?=pythonflask)python', 'flask')) # miss
+print(re.search(r'(?=pythonflask)python', 'python')) # miss
+print(re.search(r'(?=pythonflask)python', 'pythonflask'))
+
+print(re.search(r'(?<=pythonflask)a', 'pythonflaska'))
+
+# →あらかじめ、先読み指定パターンが存在することをチェックし、
+#  存在した場合、右側のパターンを、存在した場所の先頭からチェックする。
+# 後読みの場合、存在した場所の"先頭から"、にならない。
+# 存在した場所より"右側から"、となる。
+
+# 先読み/後読み 活用例3
+# 任意条件今回は３数字に加え、英大文字が含まれていること。
+print(re.search(r'(?=.*[A-Z]).{3}', 'Abc')) # match
+print(re.search(r'(?=.*[A-Z]).{3}', 'aBc')) # match
+print(re.search(r'(?=.*[A-Z]).{3}', 'abC')) # match
+print(re.search(r'(?=.*[A-Z]).{3}', 'abc')) # miss
+print(re.search(r'(?=.*[A-Z]).{3}', 'aB')) # miss
+
+# 先読みを連続した場合、AND条件になる。
+# 任意条件今回は３数字に加え、英小文字と英大文字が含まれていること。
+print(re.search(r'(?=.*[a-z])(?=.*[A-Z]).{3}', 'Abc')) # match
+print(re.search(r'(?=.*[a-z])(?=.*[A-Z]).{3}', 'AAA')) # miss
+print(re.search(r'(?=.*[a-z])(?=.*[A-Z]).{3}', 'abc')) # miss
+
+# 先読み/後読み 活用例4 パスワード
+# 少なくとも５桁必要
+# 小文字、大文字、数字、記号(.)の全てを含む
+print(re.search(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[_.])[a-zA-Z0-9_.]\S{5,}$', 'Password123!')) # match
