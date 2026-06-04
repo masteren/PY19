@@ -27,3 +27,38 @@ word.hello()
 # 気にしない。（selfは勝手に渡る。）
 
 # 引数
+
+class User:
+    # 第１引数はselfとする慣例。
+    # 第2引数以降は、呼び出し側で渡す引数。
+    def hello(self, name="nanashi"):
+        print(f'hello {name}')
+
+
+user = User()
+user.hello()
+
+# 戻り値
+class User:
+    def hello(self):
+        print("hello")
+    def hello2(self):
+        return "hello"
+# メソッドは、複数定義できる。
+
+user = User()
+result = user.hello()  # helloと表示されるが、戻り値はNone
+print(result)  # Noneと表示される
+
+result = user.hello2()
+print(result)
+
+# 同一メソッドの定義は後ほどのものが有効になる。
+class User:
+    def hello(self):
+        print("hello")
+    def hello(self):
+        print("2o")
+
+User().hello()
+# 変数に入れず、直に操作することもできる。
