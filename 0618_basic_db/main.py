@@ -49,3 +49,23 @@ with sqlite3.connect('0618_basic_db/sample.db') as conn:
     for row in cursor:
         print(row)
     # selectはcommit/rollback不要
+
+
+# 単一行を取得するにはfetchone
+    # 戻り値はタプル。
+    # COUNT(*)等、スカラー(単一)値の場合には、1要素のタプル。
+    cursor.execute('SELECT * FROM user WHERE id = 1')
+    row = cursor.fetchone()
+    print(row)  # (1, 'Alice')
+
+    cursor.execute('SELECT COUNT(*) FROM user')
+    count, = cursor.fetchone()
+    print(count)  # 2
+
+    # update
+    cursor.execute("UPDATE user SET name = 'Bob' WHERE id = 2")
+    conn.commit()
+
+    # delete
+    cursor.execute("DELETE FROM user WHERE id = 2")
+    conn.commit()
