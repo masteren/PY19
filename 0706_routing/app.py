@@ -34,6 +34,9 @@ def a():
 def a():
     return 'c'
 
+# endpointは、関数名のダブり他、関数名が長い場合や、
+# 関数の命名規則とURLの命名規則を変えたい場合に用いる。
+
 if __name__ == '__main__':
     app.run('0.0.0.0', 5005, debug= True)
 

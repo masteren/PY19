@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>データ受け渡し</h1>
+    {#
+        Pythonより引き渡されたデータは、
+        {{ key_name }}
+        の形で出力することができる。
+    #}
+    <p>ID:{{ id }}</p>
+    <p>Name:{{ name }}</p> {# 既定でサニタイジング #}
+    <p>&copy;</p>
+    <p>ID:{{ user.id }}</p>
+    <p>Name:{{ user.name }}</p>
+    <p>式もOK:{{ user.id * 10 + 5 }}</p>
+</body>
+</html>
