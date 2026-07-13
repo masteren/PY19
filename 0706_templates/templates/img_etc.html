@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>画像など</h1>
+    {# 静的(static)なファイル(image,css,js等)は、
+        staticフォルダに配置する必要がある。 #}
+    <img src="/static/img/logo.png">
+
+    {#
+        URLはハードコーディングせず、
+        関数を用いるのがJinja2のベストプラクティス。
+        これにより、URL変更時の保守性に強くなる。
+        [URL取得関数の書式]
+         url_for(エンドポイント名 [, key=data])
+    #}
+    <img src="{{ url_for('static', filename='img/logo.png') }}">
+</body>
+</html>
