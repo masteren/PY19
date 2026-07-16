@@ -1,0 +1,162 @@
+/* 手書きCSS(フレームワーク不使用)。CSS変数 + Grid(auto-fill/minmax)。
+   メディアクエリは最小限。 */
+:root {
+  --bg: #0f1220;
+  --panel: #1a1f36;
+  --panel-2: #232a4d;
+  --text: #e8ebff;
+  --muted: #9aa3c7;
+  --accent: #ffb020;      /* SF6 らしい黄 */
+  --accent-2: #e23b5a;    /* 赤 */
+  --line: #303860;
+  --ok: #2fbf71;
+  --err: #ff5d73;
+  --radius: 12px;
+  --gap: 16px;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+/* --- ヘッダ/フッタ --- */
+.site-header {
+  background: var(--panel);
+  border-bottom: 2px solid var(--accent);
+}
+.site-header .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+}
+.logo { font-weight: 800; font-size: 1.2rem; color: var(--text); }
+.site-header nav { display: flex; gap: 12px; align-items: center; }
+.site-footer { color: var(--muted); padding: 30px 0; font-size: .85rem; }
+
+/* --- ボタン --- */
+.btn, .btn-primary, button {
+  display: inline-block; cursor: pointer;
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font-size: .95rem;
+}
+.btn-primary {
+  background: var(--accent); color: #241a00; border-color: var(--accent);
+  font-weight: 700;
+}
+.btn-danger { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+button:hover, .btn:hover, .btn-primary:hover { filter: brightness(1.08); text-decoration: none; }
+.link-reset { color: var(--muted); }
+
+/* --- flash --- */
+.flash { padding: 10px 14px; border-radius: 8px; margin: 16px 0; }
+.flash-success { background: rgba(47,191,113,.15); border: 1px solid var(--ok); }
+.flash-error { background: rgba(255,93,115,.12); border: 1px solid var(--err); }
+
+h1 { margin: 24px 0 16px; }
+
+/* --- 絞り込み --- */
+.filter {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: end;
+  background: var(--panel); padding: 14px; border-radius: var(--radius);
+  border: 1px solid var(--line); margin-bottom: 20px;
+}
+.filter label { display: flex; flex-direction: column; font-size: .8rem; color: var(--muted); gap: 4px; }
+.filter select, .filter button { padding: 8px; }
+
+/* --- カードグリッド(auto-fill/minmax) --- */
+.card-grid {
+  display: grid; gap: var(--gap);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.card {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px; color: var(--text);
+  transition: transform .08s, border-color .08s;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); text-decoration: none; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card .name { font-weight: 700; font-size: 1.1rem; }
+.card .meta { display: flex; gap: 10px; color: var(--muted); font-size: .9rem; margin: 6px 0; }
+.card .lp { color: var(--accent); font-weight: 700; }
+.card .summary { font-size: .9rem; color: var(--text); margin: 4px 0 0; }
+.empty { color: var(--muted); }
+
+/* ランクバッジ */
+.rank { font-size: .72rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); }
+.rank-master, .rank-legend { background: var(--accent); color: #241a00; border-color: var(--accent); }
+.rank-diamond, .rank-platinum { background: #3aa0ff22; border-color: #3aa0ff; }
+
+/* --- 詳細 --- */
+.detail-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.detail-actions { display: flex; gap: 8px; align-items: center; }
+.detail-actions form { display: inline; }
+.detail-grid {
+  display: grid; gap: var(--gap);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px;
+}
+/* 回数系パネルを flex で並べ、最終行を伸ばして右側の空白をなくす */
+.stat-flex { display: flex; flex-wrap: wrap; gap: var(--gap); }
+.stat-flex .panel { flex: 1 1 220px; margin: 0; }
+.panel h2 { margin-top: 0; font-size: 1rem; color: var(--accent); }
+.span-2 { grid-column: 1 / -1; }
+/* 公式風の区切り大見出し(「過去100戦平均のバトルの傾向」など) */
+.section-title {
+  margin: 12px 0 0; padding: 10px 14px; font-size: 1.05rem;
+  color: var(--text); border-left: 4px solid var(--accent);
+  background: linear-gradient(90deg, rgba(255,176,32,.18), transparent);
+}
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; text-align: right; }
+.muted { color: var(--muted); }
+.note { white-space: pre-wrap; }
+.diagnosis { margin: 0; padding-left: 18px; }
+.diagnosis li { margin: 4px 0; }
+.shot { max-width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+
+/* --- CSS だけの横棒グラフ --- */
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar-row { display: grid; grid-template-columns: 130px 1fr 64px; align-items: center; gap: 10px; }
+.bar-label { color: var(--muted); font-size: .85rem; }
+.bar-track { background: var(--panel-2); border-radius: 999px; height: 14px; overflow: hidden; }
+.bar-fill {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.bar-value { text-align: right; font-variant-numeric: tabular-nums; font-size: .85rem; }
+
+/* --- フォーム --- */
+.fighter-form fieldset {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; margin: 0 0 18px;
+}
+.fighter-form legend { color: var(--accent); font-weight: 700; padding: 0 8px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.field label { font-size: .85rem; color: var(--muted); }
+.field input, .field select, .field textarea {
+  padding: 9px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--text); font-size: .95rem;
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 16px; }
+.field.has-error input, .field.has-error select { border-color: var(--err); }
+.err { color: var(--err); font-size: .8rem; margin: 2px 0 0; }
+.err-total { font-size: .95rem; margin-bottom: 12px; }
+.form-actions { display: flex; gap: 12px; align-items: center; }
+.checkbox { flex-direction: row; align-items: center; gap: 6px; color: var(--text); font-size: .9rem; margin-top: 6px; }
+.checkbox input { width: auto; }
+
+/* メディアクエリは最小限(狭い画面での詳細アクションの折返しのみ) */
+@media (max-width: 520px) {
+  .bar-row { grid-template-columns: 90px 1fr 56px; }
+}

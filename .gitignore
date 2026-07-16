@@ -1,1 +1,11 @@
 /venv
+
+# Python
+__pycache__/
+*.pyc
+.mypy_cache/
+
+# kadai5: 生成物(初回起動時に schema.sql + seed.sql から自動生成)
+kadai5/fighters.db
+# ユーザーがアップロードした画像(起動時に自動作成される)
+kadai5/static/uploads/

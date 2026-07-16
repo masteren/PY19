@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}一覧 - ファイターカルテ{% endblock %}
+
+{% block content %}
+<h1>注目プレイヤー一覧</h1>
+
+<!-- 絞り込み・並び替え: GET の form。JS 不使用。 -->
+<form class="filter" method="get" action="{{ url_for('index') }}">
+  <label>
+    使用キャラ
+    <select name="main_char">
+      <option value="">すべて</option>
+      {% for c in main_chars %}
+        <option value="{{ c }}" {{ 'selected' if cur_main == c }}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    ランク
+    <select name="rank_name">
+      <option value="">すべて</option>
+      {% for r in rank_names %}
+        <option value="{{ r }}" {{ 'selected' if cur_rank == r }}>{{ r }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    並び替え
+    <select name="order">
+      <option value="created" {{ 'selected' if cur_order == 'created' }}>登録順</option>
+      <option value="lp" {{ 'selected' if cur_order == 'lp' }}>LP順</option>
+    </select>
+  </label>
+  <button type="submit">絞り込む</button>
+  <a class="link-reset" href="{{ url_for('index') }}">リセット</a>
+</form>
+
+{% if cards %}
+<div class="card-grid">
+  {% for f, summary in cards %}
+    <a class="card" href="{{ url_for('detail', fighter_id=f.id) }}">
+      <div class="card-head">
+        <span class="name">{{ f.name }}</span>
+        {% if f.rank_name %}<span class="rank rank-{{ f.rank_name|lower }}">{{ f.rank_name }}</span>{% endif %}
+      </div>
+      <div class="card-body">
+        <div class="meta"><span class="char">{{ f.main_char }}</span>
+          {% if f.lp is not none %}<span class="lp">{{ f.lp }} LP</span>{% endif %}
+        </div>
+        <p class="summary">{{ summary }}</p>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+{% else %}
+  <p class="empty">該当するプレイヤーがいません。<a href="{{ url_for('create') }}">新規登録</a>してください。</p>
+{% endif %}
+{% endblock %}
