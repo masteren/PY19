@@ -122,6 +122,8 @@ def create():
             errors["screenshot"] = img_err
 
         if errors:
+            # 他項目のエラーで差し戻す場合、保存済みの画像は孤児ファイルになるため削除
+            _delete_file(filename)
             # リダイレクトせず入力値を保持したままフォームに戻す
             return render_template(
                 "form.html", mode="new", f=clean, errors=errors,
@@ -155,6 +157,8 @@ def edit(fighter_id):
             errors["screenshot"] = img_err
 
         if errors:
+            # 他項目のエラーで差し戻す場合、保存済みの新画像は孤児ファイルになるため削除
+            _delete_file(new_filename)
             # 既存の画像名は保持して表示(未確定の new_filename は使わない)
             clean["screenshot"] = fighter.screenshot
             clean["id"] = fighter_id

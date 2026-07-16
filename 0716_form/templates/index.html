@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Form</h1>
+    <form action="{{ url_for('confirm') }}" method="post">
+        <p>単一値</p>
+        ID:<input type="text" name="id">
+        <p>複数値</p>
+        <label><input type="checkbox" name="check" value="a">A</label>
+        <label><input type="checkbox" name="check" value="b">B</label>
+        <br>
+        <button type="submit">送信</button>
+    </form>
+</body>
+</html>
