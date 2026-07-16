@@ -49,7 +49,8 @@ def _save_upload(file_storage):
     if not file_storage or not file_storage.filename:
         return None, None  # 画像なしは正常
 
-    ext = file_storage.filename.rsplit(".", 1)[-1].lower() if "." in file_storage.filename else ""
+    name = file_storage.filename
+    ext = name.rsplit(".", 1)[-1].lower() if "." in name else ""
     if ext == "jpeg":
         ext = "jpg"
     if ext not in ALLOWED_EXT:
@@ -84,7 +85,9 @@ def index():
     rank_name = request.args.get("rank_name") or None
     order_by = request.args.get("order", "created")
 
-    fighters = repo.find_all(main_char=main_char, rank_name=rank_name, order_by=order_by)
+    fighters = repo.find_all(
+        main_char=main_char, rank_name=rank_name, order_by=order_by,
+    )
     # 各カードの診断要約を作る
     cards = [(f, Diagnosis(f).summary()) for f in fighters]
 
