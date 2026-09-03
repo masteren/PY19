@@ -27,10 +27,8 @@ CREATE TABLE fighters (
     -- 回数系(過去100戦平均。小数1桁。0〜99.9)
     throw_landed    REAL,
     throw_received  REAL,
-    throw_escaped   REAL,
     di_landed       REAL,
     di_received     REAL,
-    parry_success   REAL,
     just_parry      REAL,
 
     -- 壁際(秒。小数1桁。0〜99.9)
@@ -38,6 +36,5 @@ CREATE TABLE fighters (
     cornered_sec    REAL,
 
     note            TEXT,               -- 任意メモ(相手の癖など)
-    screenshot      TEXT,               -- アップロード画像のファイル名のみ(パスは持たない)
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

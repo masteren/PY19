@@ -1,9 +1,0 @@
-{
-  "cSpell.enabled": false,
-  "cSpell.enabledFiletypes": [
-    "!python"
-  ],
-  "spellright.language": [],
-  "spellright.documentTypes": [],
-  "python.analysis.typeCheckingMode": "off"
-}

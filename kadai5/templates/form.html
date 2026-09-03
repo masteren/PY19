@@ -1,116 +1,145 @@
-{% extends "base.html" %}
-{% block title %}{{ '編集' if mode == 'edit' else '新規登録' }} - ファイターカルテ{% endblock %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if mode == 'edit' %}編集{% else %}新規登録{% endif %} - SF6 ファイターカルテ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="wrap">
+            <a class="logo" href="{{ url_for('index') }}">SF6 ファイターカルテ</a>
+            <a class="btn-primary" href="{{ url_for('create') }}">＋ 新規登録</a>
+        </div>
+    </header>
 
-{#- 入力欄マクロ: ラベル・値保持・項目別エラー表示をまとめる。
-    f は dict(検証失敗時) でも Fighter(編集GET) でも f.<col> でアクセス可。 -#}
-{% macro field(col, type='text', step=None, extra='') %}
-  {% set val = f[col] if f[col] is defined and f[col] is not none else '' %}
-  <div class="field {{ 'has-error' if errors.get(col) }}">
-    <label for="{{ col }}">{{ labels[col] }}</label>
-    <input type="{{ type }}" id="{{ col }}" name="{{ col }}"
-           value="{{ val }}" {% if step %}step="{{ step }}"{% endif %} {{ extra|safe }}>
-    {% if errors.get(col) %}<p class="err">{{ errors[col] }}</p>{% endif %}
-  </div>
-{% endmacro %}
+    <main class="wrap">
+        <h1>{% if mode == 'edit' %}選手を編集{% else %}選手を新規登録{% endif %}</h1>
 
-{% block content %}
-<h1>{{ '選手を編集' if mode == 'edit' else '選手を新規登録' }}</h1>
+        {% if errors %}
+        <div class="flash flash-error">入力内容にエラーがあります。各項目を確認してください。</div>
+        {% endif %}
 
-{% if errors %}
-  <div class="flash flash-error">入力内容にエラーがあります。各項目を確認してください。</div>
-{% endif %}
+        <form method="post" class="fighter-form"
+              {% if mode == 'edit' %}
+              action="{{ url_for('edit', fighter_id=f.id) }}"
+              {% else %}
+              action="{{ url_for('create') }}"
+              {% endif %}>
 
-<!-- multipart(画像アップロードのため)。action は url_for。 -->
-<form method="post" enctype="multipart/form-data"
-      action="{{ url_for('edit', fighter_id=f.id) if mode == 'edit' else url_for('create') }}"
-      class="fighter-form">
+            <fieldset>
+                <legend>基本情報</legend>
 
-  <fieldset>
-    <legend>基本情報</legend>
-    {{ field('name', extra='maxlength="32" required') }}
-    <div class="field {{ 'has-error' if errors.get('main_char') }}">
-      <label for="main_char">{{ labels['main_char'] }}</label>
-      <select id="main_char" name="main_char" required>
-        <option value="">選択してください</option>
-        {% for c in main_chars %}
-          <option value="{{ c }}" {{ 'selected' if f['main_char'] == c }}>{{ c }}</option>
-        {% endfor %}
-      </select>
-      {% if errors.get('main_char') %}<p class="err">{{ errors['main_char'] }}</p>{% endif %}
-    </div>
-    <div class="field {{ 'has-error' if errors.get('rank_name') }}">
-      <label for="rank_name">{{ labels['rank_name'] }}</label>
-      <select id="rank_name" name="rank_name">
-        <option value="">未設定</option>
-        {% for r in rank_names %}
-          <option value="{{ r }}" {{ 'selected' if f['rank_name'] == r }}>{{ r }}</option>
-        {% endfor %}
-      </select>
-      {% if errors.get('rank_name') %}<p class="err">{{ errors['rank_name'] }}</p>{% endif %}
-    </div>
-    {{ field('cfn_code', extra='placeholder="数字10桁"') }}
-    {{ field('lp', type='number', extra='min="0" max="50000"') }}
-  </fieldset>
+                <div class="field {% if errors.name %}has-error{% endif %}">
+                    <label for="name">{{ labels['name'] }}</label>
+                    {# 未入力(None)のときに「None」と表示されないようifで囲む #}
+                    <input type="text" id="name" name="name" maxlength="32"
+                           value="{% if f.name is not none %}{{ f.name }}{% endif %}">
+                    {% if errors.name %}<p class="err">{{ errors.name }}</p>{% endif %}
+                </div>
 
-  <fieldset>
-    <legend>ドライブゲージ使用実績(%・合計100%付近)</legend>
-    {% if errors.get('drive_gauge_total') %}
-      <p class="err err-total">{{ errors['drive_gauge_total'] }}</p>
-    {% endif %}
-    <div class="grid-2">
-      {{ field('parry_pct', type='number', step='0.01') }}
-      {{ field('di_pct', type='number', step='0.01') }}
-      {{ field('od_arts_pct', type='number', step='0.01') }}
-      {{ field('parry_rush_pct', type='number', step='0.01') }}
-      {{ field('cancel_rush_pct', type='number', step='0.01') }}
-      {{ field('reversal_pct', type='number', step='0.01') }}
-      {{ field('damage_pct', type='number', step='0.01') }}
-    </div>
-  </fieldset>
+                <div class="field {% if errors.main_char %}has-error{% endif %}">
+                    <label for="main_char">{{ labels['main_char'] }}</label>
+                    <select id="main_char" name="main_char">
+                        <option value="">選択してください</option>
+                        {% for c in main_chars %}
+                        <option value="{{ c }}" {% if f.main_char == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.main_char %}<p class="err">{{ errors.main_char }}</p>{% endif %}
+                </div>
 
-  <fieldset>
-    <legend>回数系(過去100戦平均・0〜99.9)</legend>
-    <div class="grid-2">
-      {{ field('throw_landed', type='number', step='0.1') }}
-      {{ field('throw_received', type='number', step='0.1') }}
-      {{ field('throw_escaped', type='number', step='0.1') }}
-      {{ field('di_landed', type='number', step='0.1') }}
-      {{ field('di_received', type='number', step='0.1') }}
-      {{ field('parry_success', type='number', step='0.1') }}
-      {{ field('just_parry', type='number', step='0.1') }}
-    </div>
-  </fieldset>
+                <div class="field {% if errors.rank_name %}has-error{% endif %}">
+                    <label for="rank_name">{{ labels['rank_name'] }}</label>
+                    <select id="rank_name" name="rank_name">
+                        <option value="">未設定</option>
+                        {% for r in rank_names %}
+                        <option value="{{ r }}" {% if f.rank_name == r %}selected{% endif %}>{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if errors.rank_name %}<p class="err">{{ errors.rank_name }}</p>{% endif %}
+                </div>
 
-  <fieldset>
-    <legend>壁際(秒・0〜99.9)</legend>
-    <div class="grid-2">
-      {{ field('cornering_sec', type='number', step='0.1') }}
-      {{ field('cornered_sec', type='number', step='0.1') }}
-    </div>
-  </fieldset>
+                <div class="field {% if errors.cfn_code %}has-error{% endif %}">
+                    <label for="cfn_code">{{ labels['cfn_code'] }}</label>
+                    <input type="text" id="cfn_code" name="cfn_code" placeholder="数字10桁"
+                           value="{% if f.cfn_code is not none %}{{ f.cfn_code }}{% endif %}">
+                    {% if errors.cfn_code %}<p class="err">{{ errors.cfn_code }}</p>{% endif %}
+                </div>
 
-  <fieldset>
-    <legend>メモ・画像</legend>
-    <div class="field {{ 'has-error' if errors.get('note') }}">
-      <label for="note">{{ labels['note'] }}</label>
-      <textarea id="note" name="note" rows="3">{{ f['note'] if f['note'] is defined and f['note'] is not none else '' }}</textarea>
-    </div>
-    <div class="field {{ 'has-error' if errors.get('screenshot') }}">
-      <label for="screenshot">{{ labels['screenshot'] }}</label>
-      <input type="file" id="screenshot" name="screenshot" accept=".jpg,.jpeg,.png,.gif">
-      {% if mode == 'edit' and f['screenshot'] %}
-        <p class="muted">現在: {{ f['screenshot'] }}(新しい画像を選ぶと差し替え)</p>
-        <label class="checkbox">
-          <input type="checkbox" name="remove_screenshot" value="1"> 画像を削除する
-        </label>
-      {% endif %}
-      {% if errors.get('screenshot') %}<p class="err">{{ errors['screenshot'] }}</p>{% endif %}
-    </div>
-  </fieldset>
+                <div class="field {% if errors.lp %}has-error{% endif %}">
+                    <label for="lp">{{ labels['lp'] }}</label>
+                    <input type="text" id="lp" name="lp"
+                           value="{% if f.lp is not none %}{{ f.lp }}{% endif %}">
+                    {% if errors.lp %}<p class="err">{{ errors.lp }}</p>{% endif %}
+                </div>
+            </fieldset>
 
-  <div class="form-actions">
-    <button type="submit" class="btn-primary">{{ '更新する' if mode == 'edit' else '登録する' }}</button>
-    <a class="link-reset" href="{{ url_for('index') }}">キャンセル</a>
-  </div>
-</form>
-{% endblock %}
+            <fieldset>
+                <legend>ドライブゲージ使用実績(%・合計100%)</legend>
+                {% if errors.gauge_total %}
+                <p class="err err-total">{{ errors.gauge_total }}</p>
+                {% endif %}
+                <div class="grid-2">
+                    {# 7項目とも入力欄の形が同じなので、列名のリストでループする #}
+                    {% for column in gauge_columns %}
+                    <div class="field {% if errors[column] %}has-error{% endif %}">
+                        <label for="{{ column }}">{{ labels[column] }}</label>
+                        <input type="text" id="{{ column }}" name="{{ column }}"
+                               value="{% if f[column] is not none %}{{ f[column] }}{% endif %}">
+                        {% if errors[column] %}<p class="err">{{ errors[column] }}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>回数(過去100戦平均・0〜99.9)</legend>
+                <div class="grid-2">
+                    {% for column in count_columns %}
+                    <div class="field {% if errors[column] %}has-error{% endif %}">
+                        <label for="{{ column }}">{{ labels[column] }}</label>
+                        <input type="text" id="{{ column }}" name="{{ column }}"
+                               value="{% if f[column] is not none %}{{ f[column] }}{% endif %}">
+                        {% if errors[column] %}<p class="err">{{ errors[column] }}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>壁際(秒・0〜99.9)</legend>
+                <div class="grid-2">
+                    {% for column in wall_columns %}
+                    <div class="field {% if errors[column] %}has-error{% endif %}">
+                        <label for="{{ column }}">{{ labels[column] }}</label>
+                        <input type="text" id="{{ column }}" name="{{ column }}"
+                               value="{% if f[column] is not none %}{{ f[column] }}{% endif %}">
+                        {% if errors[column] %}<p class="err">{{ errors[column] }}</p>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>メモ</legend>
+
+                <div class="field">
+                    <label for="note">{{ labels['note'] }}</label>
+                    <textarea id="note" name="note" rows="3">{% if f.note is not none %}{{ f.note }}{% endif %}</textarea>
+                </div>
+            </fieldset>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">{% if mode == 'edit' %}更新する{% else %}登録する{% endif %}</button>
+                <a class="link-reset" href="{{ url_for('index') }}">キャンセル</a>
+            </div>
+        </form>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">入力値のチェックはすべてPython側で行っています</div>
+    </footer>
+</body>
+</html>

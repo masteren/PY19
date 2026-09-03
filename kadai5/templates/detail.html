@@ -1,109 +1,131 @@
-{% extends "base.html" %}
-{% block title %}{{ f.name }} - ファイターカルテ{% endblock %}
-
-{% block content %}
-<div class="detail-head">
-  <h1>{{ f.name }}</h1>
-  <div class="detail-actions">
-    <a class="btn" href="{{ url_for('edit', fighter_id=f.id) }}">編集</a>
-    <!-- 削除は POST の form。JS は confirm() のみ(無効でも動く)。 -->
-    <form method="post" action="{{ url_for('delete', fighter_id=f.id) }}"
-          onsubmit="return confirm('本当に削除しますか?');">
-      <button type="submit" class="btn btn-danger">削除</button>
-    </form>
-  </div>
-</div>
-
-<div class="detail-grid">
-  <section class="panel">
-    <h2>基本情報</h2>
-    <dl class="kv">
-      <dt>使用キャラ</dt><dd>{{ f.main_char }}</dd>
-      <dt>ランク</dt><dd>{{ f.rank_name or '—' }}</dd>
-      <dt>LP</dt><dd>{{ f.lp if f.lp is not none else '—' }}</dd>
-      <dt>CFN</dt><dd>{{ f.cfn_code or '—' }}</dd>
-    </dl>
-  </section>
-
-  <section class="panel">
-    <h2>この選手の傾向</h2>
-    {% if diagnosis %}
-      <ul class="diagnosis">
-        {% for d in diagnosis %}<li>{{ d }}</li>{% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">特筆すべき傾向なし</p>
-    {% endif %}
-  </section>
-
-  <h2 class="section-title span-2">過去100戦平均のバトルの傾向</h2>
-
-  <section class="panel span-2">
-    <h2>ドライブゲージ使用実績</h2>
-    <!-- CSS だけで横棒グラフ(JS 不使用)。width を % 指定するだけ。 -->
-    <div class="bars">
-      {% for label, value in f.drive_gauge_items %}
-        <div class="bar-row">
-          <span class="bar-label">{{ label }}</span>
-          <span class="bar-track"><span class="bar-fill" style="width: {{ value }}%"></span></span>
-          <span class="bar-value">{{ '%.2f'|format(value) }}%</span>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ f.name }} - SF6 ファイターカルテ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="wrap">
+            <a class="logo" href="{{ url_for('index') }}">SF6 ファイターカルテ</a>
+            <a class="btn-primary" href="{{ url_for('create') }}">＋ 新規登録</a>
         </div>
-      {% endfor %}
-    </div>
-  </section>
+    </header>
 
-  <!-- 以下、公式PLAY画面の「過去100戦平均のバトルの傾向」の分類に合わせて
-       ドライブパリィ / ドライブインパクト / 投げ / 壁際 に分けて表示(列は不変)。
-       flex + flex-grow で最終行のパネルが横に伸び、右側に空白を残さない。 -->
-  <div class="stat-flex span-2">
-    <section class="panel">
-      <h2>ドライブパリィ</h2>
-      <dl class="kv">
-        <dt>成功回数</dt><dd>{{ '%.1f回'|format(f.parry_success) if f.parry_success is not none else '—' }}</dd>
-        <dt>ジャストパリィ回数</dt><dd>{{ '%.1f回'|format(f.just_parry) if f.just_parry is not none else '—' }}</dd>
-      </dl>
-    </section>
+    <main class="wrap">
+        <div class="detail-head">
+            <h1>{{ f.name }}</h1>
+            <div class="detail-actions">
+                <a class="btn" href="{{ url_for('edit', fighter_id=f.id) }}">編集</a>
+                {# 削除はPOSTで送る(URLを開いただけで消えないようにするため) #}
+                <form method="post" action="{{ url_for('delete', fighter_id=f.id) }}">
+                    <button type="submit" class="btn btn-danger">削除</button>
+                </form>
+            </div>
+        </div>
 
-    <section class="panel">
-      <h2>ドライブインパクト</h2>
-      <dl class="kv">
-        <dt>決めた回数</dt><dd>{{ '%.1f回'|format(f.di_landed) if f.di_landed is not none else '—' }}</dd>
-        <dt>受けた回数</dt><dd>{{ '%.1f回'|format(f.di_received) if f.di_received is not none else '—' }}</dd>
-      </dl>
-    </section>
+        <div class="detail-grid">
+            <section class="panel">
+                <h2>基本情報</h2>
+                <dl class="kv">
+                    <dt>使用キャラ</dt>
+                    <dd>{{ f.main_char }}</dd>
+                    <dt>ランク</dt>
+                    <dd>{% if f.rank_name %}{{ f.rank_name }}{% else %}—{% endif %}</dd>
+                    <dt>LP</dt>
+                    {# 0も有効な値なので「is not none」で判定する #}
+                    <dd>{% if f.lp is not none %}{{ f.lp }}{% else %}—{% endif %}</dd>
+                    <dt>CFN</dt>
+                    <dd>{% if f.cfn_code %}{{ f.cfn_code }}{% else %}—{% endif %}</dd>
+                </dl>
+            </section>
 
-    <section class="panel">
-      <h2>投げ</h2>
-      <dl class="kv">
-        <dt>決めた回数</dt><dd>{{ '%.1f回'|format(f.throw_landed) if f.throw_landed is not none else '—' }}</dd>
-        <dt>受けた回数</dt><dd>{{ '%.1f回'|format(f.throw_received) if f.throw_received is not none else '—' }}</dd>
-        <dt>投げ抜け回数</dt><dd>{{ '%.1f回'|format(f.throw_escaped) if f.throw_escaped is not none else '—' }}</dd>
-      </dl>
-    </section>
+            <section class="panel">
+                <h2>この選手の傾向</h2>
+                {% if messages %}
+                <ul class="diagnosis">
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">特筆すべき傾向なし</p>
+                {% endif %}
+            </section>
 
-    <section class="panel">
-      <h2>壁際</h2>
-      <dl class="kv">
-        <dt>相手を追い詰めている時間</dt><dd>{{ '%.1f秒'|format(f.cornering_sec) if f.cornering_sec is not none else '—' }}</dd>
-        <dt>相手に追い詰められている時間</dt><dd>{{ '%.1f秒'|format(f.cornered_sec) if f.cornered_sec is not none else '—' }}</dd>
-      </dl>
-    </section>
-  </div>
+            <h2 class="section-title span-2">過去100戦平均のバトルの傾向</h2>
 
-  {% if f.note %}
-  <section class="panel span-2">
-    <h2>メモ</h2>
-    <p class="note">{{ f.note }}</p>
-  </section>
-  {% endif %}
+            <section class="panel span-2">
+                <h2>ドライブゲージ使用実績</h2>
+                {# CSSだけの横棒グラフ。widthに%を入れているだけ(JS不使用)。 #}
+                <div class="bars">
+                    {% for label, value in f.drive_gauge_items %}
+                    <div class="bar-row">
+                        <span class="bar-label">{{ label }}</span>
+                        <span class="bar-track">
+                            <span class="bar-fill" style="width: {{ value }}%"></span>
+                        </span>
+                        <span class="bar-value">{{ value }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
 
-  {% if f.screenshot %}
-  <section class="panel span-2">
-    <h2>スクリーンショット</h2>
-    <img class="shot" src="{{ url_for('static', filename='uploads/' ~ f.screenshot) }}" alt="{{ f.name }} のPLAY画面">
-  </section>
-  {% endif %}
-</div>
+            <div class="stat-flex span-2">
+                <section class="panel">
+                    <h2>ドライブパリィ</h2>
+                    <dl class="kv">
+                        <dt>ジャストパリィ回数</dt>
+                        <dd>{% if f.just_parry is not none %}{{ f.just_parry }}回{% else %}—{% endif %}</dd>
+                    </dl>
+                </section>
 
-<p><a class="link-reset" href="{{ url_for('index') }}">← 一覧へ戻る</a></p>
-{% endblock %}
+                <section class="panel">
+                    <h2>ドライブインパクト</h2>
+                    <dl class="kv">
+                        <dt>決めた回数</dt>
+                        <dd>{% if f.di_landed is not none %}{{ f.di_landed }}回{% else %}—{% endif %}</dd>
+                        <dt>受けた回数</dt>
+                        <dd>{% if f.di_received is not none %}{{ f.di_received }}回{% else %}—{% endif %}</dd>
+                    </dl>
+                </section>
+
+                <section class="panel">
+                    <h2>投げ</h2>
+                    <dl class="kv">
+                        <dt>決めた回数</dt>
+                        <dd>{% if f.throw_landed is not none %}{{ f.throw_landed }}回{% else %}—{% endif %}</dd>
+                        <dt>受けた回数</dt>
+                        <dd>{% if f.throw_received is not none %}{{ f.throw_received }}回{% else %}—{% endif %}</dd>
+                    </dl>
+                </section>
+
+                <section class="panel">
+                    <h2>壁際</h2>
+                    <dl class="kv">
+                        <dt>相手を追い詰めている時間</dt>
+                        <dd>{% if f.cornering_sec is not none %}{{ f.cornering_sec }}秒{% else %}—{% endif %}</dd>
+                        <dt>相手に追い詰められている時間</dt>
+                        <dd>{% if f.cornered_sec is not none %}{{ f.cornered_sec }}秒{% else %}—{% endif %}</dd>
+                    </dl>
+                </section>
+            </div>
+
+            {% if f.note %}
+            <section class="panel span-2">
+                <h2>メモ</h2>
+                <p class="note">{{ f.note }}</p>
+            </section>
+            {% endif %}
+        </div>
+
+        <p><a class="link-reset" href="{{ url_for('index') }}">← 一覧へ戻る</a></p>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">数値はBuckler's Boot Campを見ながら手入力 / 診断はルールベース</div>
+    </footer>
+</body>
+</html>
